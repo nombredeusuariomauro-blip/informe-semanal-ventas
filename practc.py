@@ -25,8 +25,7 @@ if archivo_subido is not None:
     except Exception as e:
         st.sidebar.error("Error reading file. Please ensure it is a valid format.")
 else:
-    st.sidebar.info("🤖 Displaying Jira mock data. Upload a file to view your real commercial metrics.")
-    # Mocking exact metrics required by the Freelancer client
+    st.sidebar.info("🤖 Displaying Jira mock data. Upload a file to view your real metrics.")
     np.random.seed(42)
     desarrolladores = ['Mauro', 'Ana', 'Juan', 'Lucas']
     datos = pd.DataFrame({
@@ -68,40 +67,43 @@ st.subheader("📄 Jira Database Preview")
 st.dataframe(datos)
 
 # --- REPORT AUTOMATION (PDF) ---
-st.sidebar.markdown("---")
-st.sidebar.subheader("📥 Export Report")
+st.markdown("---")
+st.subheader("📥 Export Weekly Report")
 
-if st.sidebar.button("Generate PDF Report"):
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", "B", 18)
-    
-    # Main Header
-    pdf.cell(200, 15, "JIRA WEEKLY ACTIVITY REPORT", ln=True, align="C")
-    pdf.ln(10)
-    
-    # Description Subheader
-    pdf.set_font("Arial", "", 12)
-    pdf.cell(200, 10, "Automated performance report for developers and key metrics tracking.", ln=True)
-    pdf.ln(5)
-    
-    # Executive Summary
-    pdf.set_font("Arial", "B", 14)
-    pdf.cell(200, 10, "Executive Weekly Summary:", ln=True)
-    pdf.set_font("Arial", "", 12)
-    pdf.cell(200, 8, f"- Tasks with Status 'Completed': {tareas_completadas} out of {total_tareas}", ln=True)
-    pdf.cell(200, 8, f"- Total Time Spent on Tasks: {horas_totales} Hours", ln=True)
-    pdf.cell(200, 8, f"- Overall Sprint Progress: {progreso_sprint}%", ln=True)
-    
-    pdf.ln(15)
-    pdf.set_font("Arial", "I", 10)
-    pdf.cell(200, 10, "Report generated automatically using Python and Streamlit integration.", ln=True, align="C")
-    
-    # File Encoding and Output Stream
-    pdf_output = pdf.output()
-    st.sidebar.download_button(
-        label="Confirm PDF Download",
-        data=pdf_output,
-        file_name="Jira_Weekly_Report.pdf",
-        mime="application/pdf"
-    )
+# Generamos el reporte en memoria para que esté disponible de una
+pdf = FPDF()
+pdf.add_page()
+pdf.set_font("Arial", "B", 18)
+
+# Main Header
+pdf.cell(200, 15, "JIRA WEEKLY ACTIVITY REPORT", ln=True, align="C")
+pdf.ln(10)
+
+# Description Subheader
+pdf.set_font("Arial", "", 12)
+pdf.cell(200, 10, "Automated performance report for developers and key metrics tracking.", ln=True)
+pdf.ln(5)
+
+# Executive Summary
+pdf.set_font("Arial", "B", 14)
+pdf.cell(200, 10, "Executive Weekly Summary:", ln=True)
+pdf.set_font("Arial", "", 12)
+pdf.cell(200, 8, f"- Tasks with Status 'Completed': {tareas_completadas} out of {total_tareas}", ln=True)
+pdf.cell(200, 8, f"- Total Time Spent on Tasks: {horas_totales} Hours", ln=True)
+pdf.cell(200, 8, f"- Overall Sprint Progress: {progreso_sprint}%", ln=True)
+
+pdf.ln(15)
+pdf.set_font("Arial", "I", 10)
+pdf.cell(200, 10, "Report generated automatically using Python and Streamlit integration.", ln=True, align="C")
+
+# El output nativo listo como bytes
+pdf_output = pdf.output()
+
+# Botón nativo de descarga directa en el cuerpo de la app
+st.download_button(
+    label="📥 Click here to Download your Jira PDF",
+    data=bytes(pdf_output),
+    file_name="Jira_Weekly_Report.pdf",
+    mime="application/pdf",
+    type="primary"
+)
